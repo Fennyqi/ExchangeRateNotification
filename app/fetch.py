@@ -9,12 +9,17 @@ from logging import exception
 from time import sleep
 from datetime import datetime, timedelta
 from pandas import DataFrame 
+from dotenv import load_dotenv
+
+# email
+from getpass import getpass
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
 # get env variable
 
-Rate_API_Key = "c48c839bdbc4308ed9a4d83c38b6a895"
-Email_API_Key = os.getenv("Email_API_Key")
-SENDER_ADDRESS = os.getenv("SENDER_ADDRESS")
+load_dotenv()
+Rate_API_Key = os.getenv("Rate_API_Key")
 
 # fetch one day's exchange rate
 
@@ -23,7 +28,7 @@ def get_exchange_rate(date):
 
     params = {
         "access_key": Rate_API_Key,
-        "date": date, #strftime('%Y-%m-%d'),
+        "date": date, #strftime('%Y-%m-%d')
         "source": "USD",
         "currencies": "CNY",
         "format": "1"
@@ -38,7 +43,6 @@ def get_exchange_rate(date):
       print (parse_response)
       return None
 
-
 # get a list of past 30 days' exchange rate
 def get_past_thirty_days_rates(sleep_seconds=1):
     today = datetime.today()
@@ -46,7 +50,10 @@ def get_past_thirty_days_rates(sleep_seconds=1):
     exchange_rates = []
     for i in range(30, 0, -1):  # Counting from 30 to 1
         date_to_fetch = today - timedelta(days=i)
+        
         date_str = date_to_fetch.strftime('%Y-%m-%d')
+
+        print(date_str)
 
         rate = get_exchange_rate(date_str)
         print(date_str, rate)
@@ -55,7 +62,6 @@ def get_past_thirty_days_rates(sleep_seconds=1):
         sleep(sleep_seconds)
 
     return exchange_rates
-
 
 # get the exchange rate for today
 today_date = datetime.today().strftime('%Y-%m-%d')
@@ -79,12 +85,6 @@ z_score = (today_rate - mean) / stdev
 print("Mean:", mean)
 print("Standard Deviation:", stdev)
 print("Z-score:", z_score)
-
-# email
-
-from getpass import getpass
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
 
 SENDGRID_API_KEY = os.getenv("Email_API_Key")
 SENDER_ADDRESS = os.getenv("Sender_Address")
