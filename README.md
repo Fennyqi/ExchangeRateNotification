@@ -23,7 +23,7 @@ Follow the [setup instructions]( https://currencylayer.com/documentation) to cre
 
 Create a ".env" file and paste in the following contents:
 
-```sh
+
 # this is the ".env" file...
 
 Email_API_Key  = "_________"

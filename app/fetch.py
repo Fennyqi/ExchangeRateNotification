@@ -20,6 +20,8 @@ from sendgrid.helpers.mail import Mail
 
 load_dotenv()
 Rate_API_Key = os.getenv("Rate_API_Key")
+SENDGRID_API_KEY = os.getenv("Email_API_Key")
+SENDER_ADDRESS = os.getenv("Sender_Address")
 
 # fetch one day's exchange rate
 
@@ -63,32 +65,6 @@ def get_past_thirty_days_rates(sleep_seconds=1):
 
     return exchange_rates
 
-# get the exchange rate for today
-today_date = datetime.today().strftime('%Y-%m-%d')
-today_rate = get_exchange_rate(today_date)
-
-# get the exchange rates for the past 30 days
-rates = get_past_thirty_days_rates()
-
-# convert list to dataframe
-rates_df = DataFrame(rates)
-print(rates)
-
-# Calculate mean and standard deviation of the 'rate' column in rates_df
-mean = rates_df['rate'].mean()
-stdev = rates_df['rate'].std()
-
-# Replace cny_rate with the specific rate you want to calculate the Z-score for
-
-z_score = (today_rate - mean) / stdev
-
-print("Mean:", mean)
-print("Standard Deviation:", stdev)
-print("Z-score:", z_score)
-
-SENDGRID_API_KEY = os.getenv("Email_API_Key")
-SENDER_ADDRESS = os.getenv("Sender_Address")
-
 def send_email(recipient_address=SENDER_ADDRESS, subject="[Notice] Low Exchange Rate", html_content="<p>Hello World</p>"):
     print("SENDING EMAIL TO:", recipient_address)
     print("SUBJECT:", subject)
@@ -115,21 +91,44 @@ def send_email(recipient_address=SENDER_ADDRESS, subject="[Notice] Low Exchange 
 
 if __name__ == "__main__":
 
-        # only want to do if running this file from command line
-        # not when importing a function from this file
-        user_address= input("Please enter your email address:")
+    # get the exchange rate for today
+    today_date = datetime.today().strftime('%Y-%m-%d')
+    today_rate = get_exchange_rate(today_date)
 
-        # !!!! need to replace currency and exchange rate with variables!
-        # could add a graph showing how rates changed
+    # get the exchange rates for the past 30 days
+    rates = get_past_thirty_days_rates()
 
-        my_content = """
+    # convert list to dataframe
+    rates_df = DataFrame(rates)
+    print(rates)
 
-            <h1> Low Exchange Rate Right Now </h1>
+    # Calculate mean and standard deviation of the 'rate' column in rates_df
+    mean = rates_df['rate'].mean()
+    stdev = rates_df['rate'].std()
+
+    # Replace cny_rate with the specific rate you want to calculate the Z-score for
+
+    z_score = (today_rate - mean) / stdev
+
+    print("Mean:", mean)
+    print("Standard Deviation:", stdev)
+    print("Z-score:", z_score)
+
+    # only want to do if running this file from command line
+    # not when importing a function from this file
+    user_address= input("Please enter your email address:")
+
+    # !!!! need to replace currency and exchange rate with variables!
+    # could add a graph showing how rates changed
+
+    my_content = f"""
+
+        <h1> Low Exchange Rate Right Now </h1>
 
 
-            <p> 1 USD = {today_rate} RMB </p>
+        <p> 1 USD = {today_rate} RMB </p>
 
-        """
+    """
 
-if z_score<1: # can change the standard upon further analysis
-    send_email(html_content=my_content, recipient_address=user_address)
+    if z_score<1: # can change the standard upon further analysis
+        send_email(html_content=my_content, recipient_address=user_address)
