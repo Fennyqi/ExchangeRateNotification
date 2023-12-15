@@ -1,9 +1,11 @@
-
 import pandas as pd
 import statistics as st
 import requests
 import json
 import os
+import matplotlib.pyplot as plt
+import io
+import base64
 
 from logging import exception
 from time import sleep
@@ -65,6 +67,27 @@ def get_past_thirty_days_rates(sleep_seconds=1):
 
     return exchange_rates
 
+# Function to create and save a plot of exchange rates
+def create_exchange_rate_plot(rates_df):
+    plt.figure(figsize=(10, 6))
+    plt.plot(rates_df['date'], rates_df['rate'], marker='o')
+    plt.title('Exchange Rate Fluctuations (Past 30 Days)')
+    plt.xlabel('Date')
+    plt.ylabel('Exchange Rate')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+
+    # Save the plot to a BytesIO object
+    img_buffer = io.BytesIO()
+    plt.savefig(img_buffer, format='png')
+    img_buffer.seek(0)
+
+    # Encode the image as base64 for HTML embedding
+    img_base64 = base64.b64encode(img_buffer.read()).decode('utf-8')
+
+    plt.close()  # Close the plot to avoid displaying it in the console
+    return img_base64
+
 def send_email(recipient_address=SENDER_ADDRESS, subject="[Notice] Low Exchange Rate", html_content="<p>Hello World</p>"):
     print("SENDING EMAIL TO:", recipient_address)
     print("SUBJECT:", subject)
@@ -110,6 +133,9 @@ if __name__ == "__main__":
 
     z_score = (today_rate - mean) / stdev
 
+    # Get base64-encoded image for the exchange rate plot
+    exchange_rate_plot = create_exchange_rate_plot(rates_df)
+
     print("Mean:", mean)
     print("Standard Deviation:", stdev)
     print("Z-score:", z_score)
@@ -128,7 +154,10 @@ if __name__ == "__main__":
 
         <p> 1 USD = {today_rate} RMB </p>
 
+
+        <img src="data:image/png;base64,{exchange_rate_plot}" alt="Exchange Rate Fluctuations">
+
     """
 
-    if z_score<1: # can change the standard upon further analysis
+    if z_score<-1: # can change the standard upon further analysis
         send_email(html_content=my_content, recipient_address=user_address)
