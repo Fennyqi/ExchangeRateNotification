@@ -3,3 +3,4 @@ sendgrid==6.5.0
 pandas
 statistics
 matplotlib
+pytest
