@@ -43,8 +43,8 @@ def get_exchange_rate(date):
     try:
       return parse_response['quotes']['USDCNY']
     except Exception as err:
-      print (err)
-      print (parse_response)
+    #   print (err)
+    #   print (parse_response)
       return None
 
 # get a list of past 30 days' exchange rate
@@ -52,7 +52,7 @@ def get_past_thirty_days_rates(sleep_seconds=1):
     today = datetime.today()
 
     exchange_rates = []
-    for i in range(30, 0, -1):  # Counting from 30 to 1
+    for i in range(31, 0, -1):  # Counting from 31 to 1
         date_to_fetch = today - timedelta(days=i)
         
         date_str = date_to_fetch.strftime('%Y-%m-%d')
