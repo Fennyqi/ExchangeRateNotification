@@ -39,3 +39,11 @@ Run the exchange rate fetch function:
 ```sh
 python -m app.fetch
 ```
+
+## Testing
+
+Run tests:
+
+```sh
+python -m pytest
+```
